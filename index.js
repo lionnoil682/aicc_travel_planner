@@ -18,7 +18,7 @@ app.use(
 );
 
 app.get('/', (req, res) => {
-  res.send(' project back wow!!!'); // get 요청 시 Hello World! 출력
+  res.send(' Thanks for all of your warmth and kindness !!'); // get 요청 시 Hello World! 출력
 }); // get 요청 시 실행할 함수
 
 app.use(cookieParser());
