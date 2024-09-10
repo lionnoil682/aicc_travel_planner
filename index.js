@@ -17,12 +17,9 @@ app.use(
   })
 );
 
-const corsOptions = {
-  origin: 'http://localhost:3000', // 클라이언트의 주소를 명시
-  credentials: true, // 자격 증명 허용
-};
-
-app.use(cors(corsOptions));
+app.get('/', (req, res) => {
+  res.send('Hello World! project back!!!'); // get 요청 시 Hello World! 출력
+}); // get 요청 시 실행할 함수
 
 app.use(cookieParser());
 
