@@ -17,6 +17,13 @@ app.use(
   })
 );
 
+const corsOptions = {
+  origin: 'http://localhost:3000', // 클라이언트의 주소를 명시
+  credentials: true, // 자격 증명 허용
+};
+
+app.use(cors(corsOptions));
+
 app.use(cookieParser());
 
 // 'uploads' 폴더를 정적 파일로 서빙
