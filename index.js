@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: 'https://travel-planner-back.aicclionnoil.co.kr',
+    origin: 'https://travel-planner-back.aicclionnoil.co.kr/get_travel_data',
     credentials: true,
   })
 );
