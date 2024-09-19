@@ -10,12 +10,15 @@ const app = express(); // express 모듈을 app 변수 할당
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(
-  cors({
-    origin: 'https://travel-planner-front.aicclionnoil.co.kr',
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     //origin: 'https://travel-planner-front.aicclionnoil.co.kr',
+//     origin: 'http://localhost:3000',
+//     credentials: true,
+//   })
+// );
+
+app.use(cors());
 
 app.get('/', (req, res) => {
   res.send(' Thanks for all of your warmth and kindness !!'); // get 요청 시 Hello World! 출력
