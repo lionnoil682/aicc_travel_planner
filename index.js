@@ -12,8 +12,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: 'https://travel-planner-front.aicclionnoil.co.kr',
-    // origin: 'http://localhost:3000',
+    // origin: 'https://travel-planner-front.aicclionnoil.co.kr',
+    origin: 'http://localhost:3000',
     credentials: true,
   })
 );
