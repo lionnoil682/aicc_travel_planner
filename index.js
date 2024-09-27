@@ -1,71 +1,44 @@
-const PORT = '8080'; // 8080 포트를 사용
-const express = require('express'); // express 모듈 사용
-const cors = require('cors'); // cors 모듈 사용
-const cookieParser = require('cookie-parser');
+const express = require('express');
+const { spawn } = require('child_process');
 const path = require('path');
-const multer = require('multer'); // multer 모듈 사용
+const bodyParser = require('body-parser');
 
-const app = express(); // express 모듈을 app 변수 할당
+// console.log(path.join(__dirname));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const app = express();
+const port = 8000;
 
-app.use(
-  cors({
-    origin: 'https://travel-planner-front.aicclionnoil.co.kr',
-    // origin: 'http://localhost:3000',
-    credentials: true,
-  })
-);
+app.use(bodyParser.json());
 
-// app.use(cors());
+app.post('/chat', (req, res) => {
+  const sendQuestion = req.body.question;
+  // EC2 서버에서 현재 실행 중인 Node.js 파일의 절대 경로를 기준으로 설정합니다.
+  const scriptPath = path.join(__dirname, 'bizchat.py');
+  const pythonPath = path.join(__dirname, 'venv', 'bin', 'python3');
 
-app.get('/', (req, res) => {
-  res.send(' Thanks for all of your warmth and kindness !!'); // get 요청 시 Hello World! 출력
-}); // get 요청 시 실행할 함수
+  // Spawn the Python process with the correct argument
+  const result = spawn(pythonPath, [scriptPath, sendedQuestion]);
 
-app.use(cookieParser());
+  output = '';
 
-// 'uploads' 폴더를 정적 파일로 서빙
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+  //파이썬 파일 수행 결과를 받아온다
+  net.stdout.on('data', function (data) {
+    output += data.toString();
+  });
 
-// Multer 설정: 파일 저장 위치와 파일 이름 설정
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // 파일을 uploads 폴더에 저장
-  },
-  filename: function (req, file, cb) {
-    const fullName =
-      req.protocol + '://' + req.get('host') + '/uploads/' + req.file.filename;
-    cb(null, fullName + '_' + file.filename); // 파일 이름 설정 (중복 방지를 위해 타임스탬프 추가)
-  },
+  net.on('close', (code) => {
+    if (code === 0) {
+      res.status(200).json({ answer: output });
+    } else {
+      res.status(500).send('Something went wrong');
+    }
+  });
+
+  net.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+  });
 });
 
-const upload = multer({ storage: storage });
-
-// 라우트 사용
-app.post('/upload', upload.single('planner_img'), (req, res) => {
-  try {
-    res.status(200).json({
-      message: 'File uploaded successfully',
-      filename:
-        req.protocol +
-        '://' +
-        req.get('host') +
-        '/uploads/' +
-        req.file.filename,
-    });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: 'File upload failed', error: error.message });
-  }
+app.listen(port, () => {
+  console.log('Server is running on port 8000');
 });
-
-// 다른 라우트 설정
-app.use(require('./routes/getRoutes'));
-app.use(require('./routes/postRoutes'));
-app.use(require('./routes/updateRoutes'));
-app.use(require('./routes/deleteRoutes'));
-
-app.listen(PORT, () => console.log(`Server is running on ${PORT}`)); // 서버 실행 시 메시지 출력
