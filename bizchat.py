@@ -26,7 +26,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding='utf-8')
 sys.stderr = io.TextIOWrapper(sys.stderr.detach(), encoding='utf-8')
 
 
-
+#update
 # # 커스텀 로더 클래스를 사용하여 개별 파일을 로드하면서 오류 처리 및 UTF-8 인코딩 적용
 # class SafeTextLoader(TextLoader):
 #     def lazy_load(self):
