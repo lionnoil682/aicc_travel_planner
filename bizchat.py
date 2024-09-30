@@ -146,11 +146,10 @@ rag_chain = (
 
 from langchain_teddynote.messages import stream_response
 
-# recieved_question = "청년을 위한 정책을 알려주세요"
+
 recieved_question = sys.argv[1]
 
 answer = rag_chain.stream(recieved_question)
 stream_response(answer)
 
-# print(answer)
 
