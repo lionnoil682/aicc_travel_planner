@@ -26,7 +26,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding='utf-8')
 sys.stderr = io.TextIOWrapper(sys.stderr.detach(), encoding='utf-8')
 
 
-#update
+
 # # 커스텀 로더 클래스를 사용하여 개별 파일을 로드하면서 오류 처리 및 UTF-8 인코딩 적용
 # class SafeTextLoader(TextLoader):
 #     def lazy_load(self):
@@ -64,7 +64,7 @@ class UTF8TextLoader(TextLoader):
 
 
 # 기본적으로 Python은 Windows에서 cp949 인코딩을 사용하지만, 한글 텍스트 파일이 UTF-8로 인코딩된 경우 이 문제가 발생할 수 있습니다.
-loader = DirectoryLoader("./chat/data", glob="*.txt", loader_cls=UTF8TextLoader)
+loader = DirectoryLoader("./data", glob="*.txt", loader_cls=UTF8TextLoader)
 documents = loader.load()
 # print(len(documents))
 
@@ -146,8 +146,8 @@ rag_chain = (
 
 from langchain_teddynote.messages import stream_response
 
+# recieved_question = "청년을 위한 정책을 알려주세요"
 recieved_question = sys.argv[1]
-# print("질문:", recieved_question)
 
 answer = rag_chain.stream(recieved_question)
 stream_response(answer)
