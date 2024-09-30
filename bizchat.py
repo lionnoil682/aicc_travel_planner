@@ -1,3 +1,4 @@
+from flask import Flask, request, jsonify
 import os
 import time
 from selenium import webdriver
@@ -18,15 +19,16 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 # OpenAI 및 LangChain 설정
 llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=1)
 
+app = Flask(__name__)
+
 def search_lego_products(search_query):
     # Chrome WebDriver 설정
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # 브라우저 창을 띄우지 않음
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
-    
-    # Chromedriver 경로 설정 (본인의 chromedriver 경로로 수정)
-    service = Service(executable_path="/path/to/chromedriver")
+
+    service = Service(executable_path="/path/to/chromedriver")  # 자신의 chromedriver 경로로 수정
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
     try:
@@ -52,13 +54,11 @@ def search_lego_products(search_query):
             for product in products[:5]:  # 상위 5개 제품만 추출
                 product_name = product.find("span", class_="ProductGridstyles__Title").text.strip()
                 product_price = product.find("span", class_="ProductPricingstyles__Price").text.strip()
-                results.append(f"Product: {product_name}, Price: {product_price}")
+                results.append({"name": product_name, "price": product_price})
         else:
-            results = ["No products found."]
-
+            results = [{"message": "No products found."}]
     except Exception as e:
-        return f"Error occurred: {str(e)}"
-
+        return {"error": str(e)}
     finally:
         driver.quit()  # 드라이버 종료
 
@@ -77,24 +77,33 @@ def summarize_lego_products(results, search_query):
 
     prompt = PromptTemplate.from_template(prompt_template)
     rag_chain = (
-        {"results": "\n".join(results), "question": search_query}
+        {"results": "\n".join([f"{p['name']}: {p['price']}" for p in results]), "question": search_query}
         | prompt
         | llm
         | StrOutputParser()
     )
 
-    answer = rag_chain.invoke({"question": search_query, "results": "\n".join(results)})
+    answer = rag_chain.invoke({"question": search_query, "results": "\n".join([f"{p['name']}: {p['price']}" for p in results])})
     return answer
 
-if __name__ == '__main__':
-    # 검색할 레고 제품 입력
-    search_query = input("Enter the LEGO product to search for: ")
-
+@app.route('/search', methods=['POST'])
+def search():
+    data = request.json
+    search_query = data.get('query', '')
+    
+    if not search_query:
+        return jsonify({"error": "No search query provided"}), 400
+    
     # 레고 제품 검색
     products = search_lego_products(search_query)
-    if "Error occurred" in products:
-        print(products)
-    else:
-        # LangChain을 통해 검색 결과 요약
-        summary = summarize_lego_products(products, search_query)
-        print("Summary:\n", summary)
+    
+    if "error" in products:
+        return jsonify({"error": products["error"]}), 500
+    
+    # LangChain을 통해 검색 결과 요약
+    summary = summarize_lego_products(products, search_query)
+    
+    return jsonify({"query": search_query, "products": products, "summary": summary})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
