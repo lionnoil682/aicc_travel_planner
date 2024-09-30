@@ -131,7 +131,7 @@ prompt = PromptTemplate.from_template(
 )
 
 
-llm=ChatOpenAI(model_name="gpt-3.5-turbo", temperature=1)
+llm=ChatOpenAI(model_name="gpt-4o-mini", temperature=1)
 
 
 # 체인을 생성합니다.
