@@ -30,7 +30,7 @@ app.post('/chat', (req, res) => {
     const sendedQuestion = req.body.question;
 
     // EC2 서버에서 현재 실행 중인 Node.js 파일의 절대 경로를 기준으로 설정.
-    const scriptPath = path.join(__dirname, 'mychat.py');
+    const scriptPath = path.join(__dirname, 'bizchat.py');
 
     // EC2 서버에서 실행하는 절대 경로: 개발 테스트 시 사용 불가
     const pythonPath = path.join(__dirname, 'venv', 'bin', 'python3');
